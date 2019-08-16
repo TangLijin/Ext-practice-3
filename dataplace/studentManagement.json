@@ -1,0 +1,24 @@
+[
+    {
+        "id": 1,
+        "text": "甲班",
+        "children":[
+            
+        ]
+    },
+    {
+        "id": 2,
+        "text": "乙班",
+        "children": [
+            {
+                "id": 3,
+                "text": "乙一班",
+                "leaf": true
+            },{
+                "id": 4,
+                "text": "乙二班",
+                "leaf": true
+            }
+        ]
+    }
+]
