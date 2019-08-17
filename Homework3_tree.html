@@ -11,35 +11,231 @@
     <title>Homework Tree</title>
 </head>
 <script>
-    Ext.onReady(function() {
-        var root = new Ext.tree.AsyncTreeNode({
+    Ext.onReady(function () {
+        Ext.QuickTips.init();
+
+        var currentClickStyle = '';
+        var currentClickNode = {};
+        var model1CollapseFlag = 1;
+
+        let addNewStudent = {
+            click: function () {
+                if (currentClickStyle != 'student' && currentClickStyle != 'class')
+                    Ext.Msg.alert('请先选择班级或学生！');
+                else {
+                    if (Ext.getCmp('addStudent').getValue() != undefined ||
+                        Ext.getCmp('addStudent').getValue() != '') {
+                        var studentName = Ext.getCmp('addStudent').getValue();
+                        var newStudent = new Ext.tree.TreeNode({
+                            text: studentName,
+                            listeners: {
+                                'click': function (node) {
+                                    currentClickStyle = 'student';
+                                    currentClickNode = node;
+                                }
+                            },
+                        });
+
+                        if (currentClickStyle == 'student') {
+                            currentClickNode.parentNode.appendChild(newStudent);
+                        } else {
+                            currentClickNode.appendChild(newStudent);
+                        }
+                        Ext.Msg.alert('添加学生成功！');
+
+                    }
+                }
+            }
+        };
+
+        let addNewClass = {
+            click: function () {
+                if (currentClickStyle != 'root' && currentClickStyle != 'class')
+                    Ext.Msg.alert('请先选择班级或根目录！');
+                else {
+                    if (Ext.getCmp('addClass').getValue() != undefined ||
+                        Ext.getCmp('addClass').getValue() != '') {
+                        var className = Ext.getCmp('addClass').getValue();
+                        var newClass = new Ext.tree.TreeNode({
+                            text: className,
+                            listeners: {
+                                'click': function (node) {
+                                    currentClickStyle = 'class';
+                                    currentClickNode = node;
+                                }
+                            },
+                        });
+                        if (currentClickStyle == 'class') {
+                            currentClickNode.parentNode.appendChild(newClass);
+                        } else {
+                            currentClickNode.appendChild(newStudent);
+                        }
+                        Ext.Msg.alert('添加班级成功！');
+                    }
+                }
+            }
+        };
+
+        var contextMenu = new Ext.menu.Menu({
+            items: [{
+                id: 'addNode',
+                text: 'Add'
+            }],
+            listeners: {
+                itemclick: function (item) {
+                    switch (item.id) {
+                        case 'addNode':
+                            var currentNode = item.parentMenu.contextNode;
+                            var newStudent = new Ext.tree.TreeNode({
+                                text: 'newStudent',
+                                listeners: clickStudent
+                            });
+                            var newClass = new Ext.tree.TreeNode({
+                                text: 'newClass',
+                                expandable: true,
+                                listeners: clickClass
+                            });
+                            if (currentNode.parentNode) {
+                                currentNode.appendChild(newStudent);
+                            } else {
+                                currentNode.appendChild(newClass);
+                            }
+                            break;
+                    }
+                }
+            }
+        });
+
+
+        let root = new Ext.tree.TreeNode({
             id: 'rootNode',
             text: '班级列表',
+            expanded: true,
+            listeners: {
+                'click': function (node) {
+                    currentClickStyle = 'root';
+                    currentClickNode = node;
+                }
+            }
         })
+
+        let class1 = new Ext.tree.TreeNode({
+            id: 1,
+            text: '甲班',
+            expanded: true,
+            listeners: {
+                'click': function (node) {
+                    currentClickStyle = 'class';
+                    currentClickNode = node;
+                }
+            }
+        });
+        let class2 = new Ext.tree.TreeNode({
+            id: 2,
+            text: '乙班',
+            expanded: true,
+            listeners: {
+                'click': function (node) {
+                    currentClickStyle = 'class';
+                    currentClickNode = node;
+                }
+            }
+        });
+
+
+        let student1 = new Ext.tree.TreeNode({
+            id: 3,
+            text: 'Jack',
+            "leaf": true,
+            listeners: {
+                'click': function (node) {
+                    currentClickStyle = 'student';
+                    currentClickNode = node;
+                }
+            }
+        });
+        var student2 = new Ext.tree.TreeNode({
+            id: 4,
+            text: 'Taylor',
+            "leaf": true,
+            listeners: {
+                'click': function (node) {
+                    currentClickStyle = 'student';
+                    currentClickNode = node;
+                }
+            }
+        });
+        let student3 = new Ext.tree.TreeNode({
+            id: 5,
+            text: 'Louis',
+            "leaf": true,
+            listeners: {
+                'click': function (node) {
+                    currentClickStyle = 'student';
+                    currentClickNode = node;
+                }
+            }
+        })
+
+        class1.appendChild(student1);
+        class2.appendChild(student2);
+        class2.appendChild(student3);
+        root.appendChild(class1);
+        root.appendChild(class2);
 
         var tree = new Ext.tree.TreePanel({
             el: 'tree',
             title: '学生管理系统',
-            width: 300,
+            width: 500,
             enableDD: true,
             root: root,
-            loader: new Ext.tree.TreeLoader({
-                dataUrl: 'dataplace/studentManagement.json'
-            }),
+            contextMenu: contextMenu,
+            // loader: new Ext.tree.TreeLoader({
+            //     dataUrl: 'dataplace/studentManagement.json'
+            // }),
             listeners: {
-                'click': function(node) {
-                    if (!node.isLeaf()) {
-                        node.expand();
-                    }
-                    chose_node = node;
+                contextmenu: function (node, e) {
+                    node.select();
+                    var treeContextMenu = node.getOwnerTree().contextMenu;
+                    treeContextMenu.contextNode = node;
+                    if (node.childNodes.length != 0)
+                        treeContextMenu.showAt(e.getXY());
                 }
+
             },
         });
-        var treeEditor = new Ext.tree.TreeEditor(tree, {
+
+
+        let treeEditor = new Ext.tree.TreeEditor(tree, {
             allowBlank: false
         });
         tree.render();
 
+        var vp = new Ext.Viewport({
+            renderTo: 'tree',
+            id: 'main',
+
+            items: [tree,
+                {
+                    xtype: 'textfield',
+                    id: 'addstudent'
+                }, {
+                    xtype: 'button',
+                    text: '添加学生',
+                    width: 40,
+                    listeners: addNewStudent
+                },
+                {
+                    xtype: 'textfield',
+                    id: 'addclass'
+                }, {
+                    xtype: 'button',
+                    text: '添加班级',
+                    width: 40,
+                    listeners: addNewClass
+                }
+            ]
+        }, )
     });
 </script>
 

@@ -3,7 +3,11 @@
         "id": 1,
         "text": "甲班",
         "children":[
-            
+            {
+                "id": 3,
+                "text": "Jack",
+                "leaf": true
+            }
         ]
     },
     {
@@ -11,12 +15,12 @@
         "text": "乙班",
         "children": [
             {
-                "id": 3,
-                "text": "乙一班",
+                "id": 4,
+                "text": "Louis",
                 "leaf": true
             },{
-                "id": 4,
-                "text": "乙二班",
+                "id": 5,
+                "text": "Taylor",
                 "leaf": true
             }
         ]
